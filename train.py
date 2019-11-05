@@ -6,7 +6,6 @@ import numpy as np
 from sklearn.metrics import confusion_matrix
 
 from net.batcher import Batcher
-from net.metrics import LabelAccuracy
 from net.model import get_model
 
 BEST_MODEL_FILENAME = "best_model.pkl"

@@ -1,10 +1,10 @@
 import os
 import re
-import sys
 
 BEST_MODEL_FILENAME = "best_model.pkl"
 BEST_VAL_ACCURACY_FILENAME = "best_val_accuracy.txt"
 DUMP_FILENAME = "model_dump.txt"
+PROJECT_PATH = '/home/joanna/Desktop/SIECI NEURONOWE/Sieci neuronowe/Laboratorium/neural_net'
 
 
 class Callback:
@@ -57,18 +57,10 @@ def camel2snake(name):
 
 class ModelDump(Callback):
     def on_train_begin(self, **kwargs):
-        self.trainer.model.dump(DUMP_FILENAME)
+        self.trainer.model.dump(os.path.join(PROJECT_PATH, DUMP_FILENAME))
 
 
-# class FlushBatchEndInfo(Callback):
-#     def on_batch_end(self, **kwargs):
-#         sys.stdout.write(
-#             "[epoch = %.2f] loss = %.5f, best val acc (epoch=%d) = %.3f, last val acc = %.3f     \r" %
-#             (b.epoch(), loss, best_epoch, best_val_accuracy, last_val_accuracy))
-#         sys.stdout.flush()
-
-
-class SaveBestAccuracyModel(Callback):
+class SaveBestModel(Callback):
     """
     Saves best model params
     """
@@ -81,7 +73,7 @@ class SaveBestAccuracyModel(Callback):
     def on_epoch_end(self, **kwargs):
         epoch = kwargs.get("epoch")
 
-        last_val_accuracy = self.trainer.model.logger['val']['accuracy'][-1]
+        last_val_accuracy = self.trainer.logger.logging_data['accuracy']['val'][-1]
 
         if last_val_accuracy > self._best_accuracy:
             self._best_accuracy = last_val_accuracy
@@ -93,6 +85,7 @@ class SaveBestAccuracyModel(Callback):
         Writes and saves best achieved accuracy during training
         :param epoch: epoch number in which that accuracy occurred
         """
-        with open(os.path.join(self._output_dir, BEST_VAL_ACCURACY_FILENAME), "w") as f:
+        with open(os.path.join(PROJECT_PATH, self._output_dir, BEST_VAL_ACCURACY_FILENAME),
+                  "w") as f:
             f.write("accuracy = %f\n" % self._best_accuracy)
             f.write("epoch = %d\n" % epoch)

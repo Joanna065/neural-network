@@ -9,12 +9,12 @@ from net.optimizers import SGDMomentum, SGD
 
 
 class Model(object):
-    def __init__(self, optimizer=None, initializer=None, metrics=None, loss_func=None):
+    def __init__(self, optimizer=None, initializer=None, metrics=None, loss_fun=None):
         self._layers = []
         self._optimizer = optimizer if optimizer is not None else SGD()
         self._initializer = initializer if initializer is not None else Xavier()
         self._metrics = metrics
-        self._loss_func = loss_func if loss_func is not None else categorical_cross_entropy
+        self._loss_func = loss_fun if loss_fun is not None else categorical_cross_entropy
 
     def add(self, layer):
         if len(self._layers) > 0:
@@ -71,7 +71,7 @@ class Model(object):
 
     def predict_classes(self, x):
         # take max prob classification and reshape to (N, 1)
-        return self.predict(x).argmax(axis=1)[:, np.newaxis]
+        return self.predict(x).argmax(axis=1)
 
     def eval_metrics(self, y_pred, y_true):
         """
