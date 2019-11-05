@@ -1,20 +1,23 @@
+import os
 import re
+import sys
+
+BEST_MODEL_FILENAME = "best_model.pkl"
+BEST_VAL_ACCURACY_FILENAME = "best_val_accuracy.txt"
+DUMP_FILENAME = "model_dump.txt"
 
 
 class Callback:
-    #
-    # def __init__(self):
-    #     self.cb_name = camel2snake(type(self).__name__)
-    #     # Trainer is assigned in trainer's init
-    #     self.trainer = None
-
     def __init__(self):
         self.cb_name = camel2snake(type(self).__name__)
-        self._validation_data = None
-        self._model = None
+        self.trainer = None
+        self.params = None
+
+    def set_params(self, params):
+        self.params = params
 
     def set_trainer(self, trainer):
-        self._trainer = trainer
+        self.trainer = trainer
 
     def on_train_begin(self, **kwargs):
         pass
@@ -34,16 +37,16 @@ class Callback:
     def on_batch_end(self, **kwargs):
         pass
 
-    def on_forward_begin(self, **kwargs):
+    def on_train_batch_begin(self, **kwargs):
         pass
 
-    def on_forward_end(self, **kwargs):
+    def on_train_batch_end(self, **kwargs):
         pass
 
-    def on_backward_begin(self, **kwargs):
+    def on_predict_batch_begin(self, **kwargs):
         pass
 
-    def on_backward_end(self, **kwargs):
+    def on_predict_batch_end(self, **kwargs):
         pass
 
 
@@ -52,4 +55,44 @@ def camel2snake(name):
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
 
-# class Sa
+class ModelDump(Callback):
+    def on_train_begin(self, **kwargs):
+        self.trainer.model.dump(DUMP_FILENAME)
+
+
+# class FlushBatchEndInfo(Callback):
+#     def on_batch_end(self, **kwargs):
+#         sys.stdout.write(
+#             "[epoch = %.2f] loss = %.5f, best val acc (epoch=%d) = %.3f, last val acc = %.3f     \r" %
+#             (b.epoch(), loss, best_epoch, best_val_accuracy, last_val_accuracy))
+#         sys.stdout.flush()
+
+
+class SaveBestAccuracyModel(Callback):
+    """
+    Saves best model params
+    """
+
+    def __init__(self, output_dir):
+        super().__init__()
+        self._output_dir = output_dir
+        self._best_accuracy = 0
+
+    def on_epoch_end(self, **kwargs):
+        epoch = kwargs.get("epoch")
+
+        last_val_accuracy = self.trainer.model.logger['val']['accuracy'][-1]
+
+        if last_val_accuracy > self._best_accuracy:
+            self._best_accuracy = last_val_accuracy
+            self.trainer.model.save_variables(os.path.join(self._output_dir, BEST_MODEL_FILENAME))
+            self._write_accuracy(epoch)
+
+    def _write_accuracy(self, epoch):
+        """
+        Writes and saves best achieved accuracy during training
+        :param epoch: epoch number in which that accuracy occurred
+        """
+        with open(os.path.join(self._output_dir, BEST_VAL_ACCURACY_FILENAME), "w") as f:
+            f.write("accuracy = %f\n" % self._best_accuracy)
+            f.write("epoch = %d\n" % epoch)

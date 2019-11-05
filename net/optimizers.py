@@ -24,6 +24,8 @@ class Optimizer(object):
 
 
 class SGD(Optimizer):
+    name = 'sgd'
+
     def __init__(self, learning_rate=0.01):
         Optimizer.__init__(self, learning_rate)
 
@@ -35,6 +37,8 @@ class SGD(Optimizer):
 
 
 class SGDMomentum(Optimizer):
+    name = 'sgd_momentum'
+
     def __init__(self, learning_rate=0.01, gamma=0.9):
         Optimizer.__init__(self, learning_rate)
         self._velocity = None
@@ -61,6 +65,8 @@ class SGDMomentum(Optimizer):
 
 
 class NAG(Optimizer):  # Nesterov Accelerated Gradient
+    name = 'nesterov'
+
     def __init__(self, learning_rate=0.01, gamma=0.9):
         Optimizer.__init__(self, learning_rate)
         self._velocity = None
@@ -89,6 +95,8 @@ class NAG(Optimizer):  # Nesterov Accelerated Gradient
 
 
 class Adagrad(Optimizer):
+    name = 'adagrad'
+
     """
     Adagrad is an optimizer with parameter-specific learning rates,
     which are adapted relative to how frequently a parameter gets
@@ -138,6 +146,8 @@ class Adagrad(Optimizer):
 
 
 class Adadelta(Optimizer):
+    name = 'adadelta'
+
     """
     Adadelta is a more robust extension of Adagrad
     that adapts learning rates based on a moving window of gradient updates,
@@ -198,6 +208,8 @@ class Adadelta(Optimizer):
 
 
 class RMSprop(Optimizer):
+    name = 'rmsprop'
+
     def __init__(self, learning_rate=None, eta=0.001, rho=0.9, eps=1e-6):
         Optimizer.__init__(self, learning_rate)
         self._rho = rho
@@ -235,6 +247,7 @@ class RMSprop(Optimizer):
 
 
 class Adam(Optimizer):
+    name = 'adam'
     """
     - Adaptive Moment Estimation -
     An adaptive learning rate algorithm for first-order gradient-based optimization of

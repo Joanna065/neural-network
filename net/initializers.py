@@ -28,14 +28,14 @@ class RandomInit(Initializer):
 
     def __init__(self, activation_fun):
         super().__init__()
-        self.__activation_fun = activation_fun
+        self._activation_fun = activation_fun
 
     def __call__(self, shape):
         fan_in, _ = get_fans(shape)
         a = None
-        if self.__activation_fun == 'sigmoid':
+        if self._activation_fun == 'sigmoid':
             a = 2.38
-        elif self.__activation_fun == 'relu':
+        elif self._activation_fun == 'relu':
             a = 2.0
         else:
             raise ValueError('Missing specified activation function')

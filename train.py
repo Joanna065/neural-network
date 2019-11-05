@@ -6,6 +6,7 @@ import numpy as np
 from sklearn.metrics import confusion_matrix
 
 from net.batcher import Batcher
+from net.metrics import LabelAccuracy
 from net.model import get_model
 
 BEST_MODEL_FILENAME = "best_model.pkl"
@@ -50,8 +51,9 @@ def validate(model, x_val, y_val):
 
 
 def train_loop(model, input_file_weights, mini_batch_size, stop_epoch,
-               optimizer, initializer, activation, output_dir):
-    m = get_model(model, optimizer, initializer, activation)
+               optimizer, initializer, activation, loss_fun, output_dir):
+
+    m = get_model(model, optimizer, initializer, activation, loss_fun)
 
     # load checkpoint weights if specified
     if input_file_weights:
@@ -98,7 +100,7 @@ def train_loop(model, input_file_weights, mini_batch_size, stop_epoch,
     print()
 
     m.save_variables(os.path.join(output_dir, BEST_MODEL_FILENAME))
-    m.model_dump(os.path.join(output_dir, DUMP_FILENAME))
+    m.dump(os.path.join(output_dir, DUMP_FILENAME))
 
     return stop_reason, best_val_accuracy
 
@@ -109,7 +111,7 @@ def parse_args():
     parser.add_argument("-m", "--model", type=str, default="SimpleNet")
     parser.add_argument("-in", "--initializer", type=str, default="Xavier")
     parser.add_argument("-opt", "--optimizer", type=str, default="SGD")
-    parser.add_argument("-l", "--loss", type=str, default="cross-entropy")
+    parser.add_argument("-loss", "--loss-function", type=str, default="crossEntropy")
     parser.add_argument("-act", "--activation", type=str, default="sigmoid")
     parser.add_argument("-mbs", "--mini-batch-size", type=int, default=100)
     parser.add_argument("-se", "--stop-epoch", type=int, default=30)
@@ -128,5 +130,6 @@ if __name__ == "__main__":
                                             args.optimizer,
                                             args.initializer,
                                             args.activation,
+                                            args.loss_function,
                                             args.output_dir)
     print("Training stopped (%s)" % stop_reason)

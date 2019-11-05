@@ -14,40 +14,41 @@ class Dense(Layer):
       y - output of shape (N, units)
     """
 
-    def __init__(self, units, use_bias=True, scale=1e-3):
+    def __init__(self, units, use_bias=True):
         super().__init__()
-        self.__units = units
-        self.__scale = scale
-        self.__use_bias = use_bias
+        self._units = units
+        self._use_bias = use_bias
+        self._W = None
+        self._bias = None
 
     def load_variables(self, vars):
-        assert self.__W.shape == vars["W"].shape
-        self.__W = vars["W"]
-        if self.__use_bias:
-            assert self.__bias.shape == vars["bias"].shape
-            self.__bias = vars["bias"]
+        assert self._W.shape == vars["W"].shape
+        self._W = vars["W"]
+        if self._use_bias:
+            assert self._bias.shape == vars["bias"].shape
+            self._bias = vars["bias"]
 
     def get_variables(self):
-        return dict(W=self.__W, bias=self.__bias) if self.__use_bias else dict(W=self.__W)
+        return dict(W=self._W, bias=self._bias) if self._use_bias else dict(W=self._W)
 
     def apply_gradients(self, grads):
-        self.__W += grads["dW"]
-        if self.__use_bias:
-            self.__bias += grads["db"]
+        self._W += grads["dW"]
+        if self._use_bias:
+            self._bias += grads["db"]
 
     def _build(self):
         assert len(self._input_shape) == 2, "input array to dense layer should be two-dimensional"
-        W_shape = self._input_shape[1], self.__units
-        self.__W = self._initializer(W_shape)
+        W_shape = self._input_shape[1], self._units
+        self._W = self._initializer(W_shape)
 
-        if self.__use_bias:
-            self.__bias = np.zeros((self.__units,), dtype=dtype())
+        if self._use_bias:
+            self._bias = np.zeros((self._units,), dtype=dtype())
 
     def output_shape(self):
-        return None, self.__units
+        return None, self._units
 
     def forward(self, x):
-        return np.dot(x, self.__W) + self.__bias if self.__use_bias else np.dot(x, self.__W)
+        return np.dot(x, self._W) + self._bias if self._use_bias else np.dot(x, self._W)
 
     def backward(self, x, dy):
         """
@@ -59,9 +60,9 @@ class Dense(Layer):
                   - db - gradient w.r.t. bias b of shape (units, )
         """
 
-        dx = np.dot(dy, self.__W.T)
+        dx = np.dot(dy, self._W.T)
         dW = np.dot(x.T, dy)
-        if self.__use_bias:
+        if self._use_bias:
             db = dy.sum(axis=0)
             return dict(dx=dx, dW=dW, db=db)
         return dict(dx=dx, dW=dW)

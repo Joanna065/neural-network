@@ -1,16 +1,20 @@
 from net.initializers import *
 from net.layers.activations import *
+from net.losses import categorical_cross_entropy
+from net.metrics import LabelAccuracy
 from net.optimizers import *
 from .architectures import *
 
 
 def get_model(model_name, optimizer='SGDMomentum', initializer='Xavier', activation='sigmoid',
-              hidden_units=(512,)):
+              loss_fun='crossEntropy', hidden_units=(512,)):
+    metrics = [LabelAccuracy()]
     optimizer = get_optimizer(optimizer)
     initializer = get_initializer(initializer, activation)
+    loss_fun = get_loss_function(loss_fun)
 
     models = dict(
-        SimpleNet=SimpleNet(optimizer, initializer, activation, hidden_units)
+        SimpleNet=SimpleNet(optimizer, initializer, metrics, loss_fun, activation, hidden_units)
     )
 
     m = models[model_name]
@@ -29,6 +33,15 @@ def get_initializer(initializer_name, activation):
     initializer = initializers[initializer_name]
     print("Using {} initializer".format(initializer_name))
     return initializer
+
+
+def get_loss_function(loss_fun_name):
+    loss_functions = dict(
+        crossEntropy=categorical_cross_entropy
+    )
+    loss_fun = loss_functions[loss_fun_name]
+    print("Using {} loss function".format(loss_fun_name))
+    return loss_fun
 
 
 def get_optimizer(optimizer_name):
