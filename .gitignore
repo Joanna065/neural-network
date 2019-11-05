@@ -117,9 +117,15 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# project ignore files
+.idea/
 .idea/misc.xml
 .idea/modules.xml
 .idea/vcs.xml
 .idea/neural_net.iml
+
+data/
+user_settings.py
+
 
 # End of https://www.gitignore.io/api/python,jupyternotebooks
