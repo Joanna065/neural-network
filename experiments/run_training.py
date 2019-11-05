@@ -8,24 +8,20 @@ from net.losses import categorical_cross_entropy
 from net.metrics import LabelAccuracy
 from net.model import SimpleNet
 from net.optimizers import SGD
+from settings import DATA_PATH
 from training import Trainer
-
-FILENAME = "/home/joanna/Desktop/SIECI NEURONOWE/Sieci neuronowe/Laboratorium/neural_net/data/mnist.pkl"
 
 
 def load_data(filename):
     with open(filename, "rb") as f:
         train_data, val_data, test_data = pickle.load(f, encoding="latin1")
-    x_train, y_train = train_data
-    x_val, y_val = val_data
-    x_test, y_test = test_data
-    return x_train, y_train, x_val, y_val, x_test, y_test
+    return train_data, val_data, test_data
 
 
 if __name__ == "__main__":
     np.random.seed(3)
 
-    x_train, y_train, x_val, y_val, x_test, y_test = load_data(FILENAME)
+    train_data, val_data, test_data = load_data(DATA_PATH)
 
     model_dictionary = {
         'optimizer': SGD(),
@@ -33,16 +29,16 @@ if __name__ == "__main__":
         'metrics': [LabelAccuracy()],
         'loss_fun': categorical_cross_entropy,
         'activation': 'sigmoid',
-        'hidden_units': (500, )
+        'hidden_units': (500,)
     }
 
     train_dictionary = {
-        'train_data': (x_train, y_train),
-        'val_data': (x_val, y_val),
+        'train_data': train_data,
+        'val_data': val_data,
         'epochs': 30,
         'batch_size': 50,
         'callbacks': [
-            ModelDump(),
+            ModelDump(output_dir='my_nets/simple_net'),
             SaveBestModel(output_dir='my_nets/simple_net')
         ]
     }
@@ -51,4 +47,3 @@ if __name__ == "__main__":
 
     trainer = Trainer(model, **train_dictionary)
     trainer.train_loop()
-

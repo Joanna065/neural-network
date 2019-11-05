@@ -26,7 +26,7 @@ class Trainer:
 
     def validate(self):
         x_val, y_val = self.val_data
-        out = self.model.predict(x_val)
+        out, _ = self.model.forward_pass(x_val, learning_phase=False)
         loss_val, _ = self.model.compute_loss(out, y_val)
 
         y_pred = self.model.predict_classes(x_val)
@@ -45,9 +45,11 @@ class Trainer:
         for epoch in range(self.epochs_amount):
             self._callback('on_epoch_begin', epoch=epoch + 1)
             train_preds = []
+            y_shuffle = []
 
             while b.epoch() < epoch + 1:
                 x, y = b(self.batch_size)
+                y_shuffle.extend(y)
                 self._callback('on_batch_begin', batch=(x, y))
                 train_loss = self.model.train(x, y)
                 loss_accum.append(train_loss)
@@ -56,17 +58,18 @@ class Trainer:
                 self._callback('on_batch_end')
 
             train_loss = float(np.mean(loss_accum))
-            train_metrics = self.model.eval_metrics(train_preds, y_train)
+            train_metrics = self.model.eval_metrics(train_preds, y_shuffle)
             train_acc = train_metrics['label_accuracy']
-            self.update_log('train', train_loss, train_acc)
+
             val_metrics, val_loss = self.validate()
             val_acc = val_metrics['label_accuracy']
+
+            self.update_log('train', train_loss, train_acc)
             self.update_log('val', val_loss, val_acc)
 
-            sys.stdout.write(
-                "[epoch = %.2f] train_loss = %.5f, train_acc = %.3f,  val_loss = %.5f, val acc = %.3f     \r" %
-                (b.epoch(), train_loss, train_acc, val_loss, val_acc))
-            sys.stdout.flush()
+            print(
+                "[epoch = %d] train_loss = %.5f, train_acc = %.3f,  val_loss = %.5f, val acc = %.3f     \r" %
+                (b.epoch(), train_loss, train_acc, val_loss, val_acc), flush=True)
 
             self._callback('on_epoch_end', epoch=epoch + 1)
             continue

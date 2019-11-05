@@ -1,10 +1,11 @@
 import os
 import re
 
+from settings import PROJECT_PATH
+
 BEST_MODEL_FILENAME = "best_model.pkl"
 BEST_VAL_ACCURACY_FILENAME = "best_val_accuracy.txt"
 DUMP_FILENAME = "model_dump.txt"
-PROJECT_PATH = '/home/joanna/Desktop/SIECI NEURONOWE/Sieci neuronowe/Laboratorium/neural_net'
 
 
 class Callback:
@@ -56,8 +57,12 @@ def camel2snake(name):
 
 
 class ModelDump(Callback):
+    def __init__(self, output_dir):
+        super().__init__()
+        self._output_dir = output_dir
+
     def on_train_begin(self, **kwargs):
-        self.trainer.model.dump(os.path.join(PROJECT_PATH, DUMP_FILENAME))
+        self.trainer.model.dump(os.path.join(PROJECT_PATH, self._output_dir, DUMP_FILENAME))
 
 
 class SaveBestModel(Callback):
@@ -77,7 +82,8 @@ class SaveBestModel(Callback):
 
         if last_val_accuracy > self._best_accuracy:
             self._best_accuracy = last_val_accuracy
-            self.trainer.model.save_variables(os.path.join(self._output_dir, BEST_MODEL_FILENAME))
+            self.trainer.model.save_variables(
+                os.path.join(PROJECT_PATH, self._output_dir, BEST_MODEL_FILENAME))
             self._write_accuracy(epoch)
 
     def _write_accuracy(self, epoch):

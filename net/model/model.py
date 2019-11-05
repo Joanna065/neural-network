@@ -31,11 +31,7 @@ class Model(object):
     def train(self, x, y):
         set_learning_phase(True)
 
-        # forward pass
-        cache = []
-        for l in self._layers:
-            cache.append(x)
-            x = l.forward(x)
+        x, cache = self.forward_pass(x)
 
         # loss computation
         loss, dscores = self.compute_loss(x, y)
@@ -58,20 +54,19 @@ class Model(object):
 
         return loss
 
-    def predict(self, x):
-        """
-        :param x: N x D
-        :return: N x classes
-        """
-        set_learning_phase(False)
-        y = x
+    def forward_pass(self, x, learning_phase=True):
+        set_learning_phase(learning_phase)
+        cache = []
         for l in self._layers:
-            y = l.forward(y)
-        return softmax(y)
+            cache.append(x)
+            x = l.forward(x)
+        return x, cache
 
     def predict_classes(self, x):
         # take max prob classification and reshape to (N, 1)
-        return self.predict(x).argmax(axis=1)
+        set_learning_phase(False)
+        out, _ = self.forward_pass(x)
+        return softmax(out).argmax(axis=1)
 
     def eval_metrics(self, y_pred, y_true):
         """
