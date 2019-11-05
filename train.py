@@ -1,5 +1,4 @@
 import os
-import pickle
 import sys
 
 import numpy as np
@@ -7,6 +6,8 @@ from sklearn.metrics import confusion_matrix
 
 from net.batcher import Batcher
 from net.model import get_model
+from settings import DATA_PATH
+from utils import load_data
 
 BEST_MODEL_FILENAME = "best_model.pkl"
 BEST_VAL_ACCURACY_FILENAME = "best_val_accuracy.txt"
@@ -25,16 +26,6 @@ def write_accuracy(output_dir, accuracy, epoch):
         f.write("epoch = %d\n" % epoch)
 
 
-def load_data():
-    FILENAME = "data/mnist.pkl"
-    with open(FILENAME, "rb") as f:
-        train_data, val_data, test_data = pickle.load(f, encoding="latin1")
-    x_train, y_train = train_data
-    x_val, y_val = val_data
-    x_test, y_test = test_data
-    return x_train, y_train, x_val, y_val, x_test, y_test
-
-
 def validate(model, x_val, y_val):
     """
     Calculates accuracy on validaton dataset
@@ -51,7 +42,6 @@ def validate(model, x_val, y_val):
 
 def train_loop(model, input_file_weights, mini_batch_size, stop_epoch,
                optimizer, initializer, activation, loss_fun, output_dir):
-
     m = get_model(model, optimizer, initializer, activation, loss_fun)
 
     # load checkpoint weights if specified
@@ -59,7 +49,9 @@ def train_loop(model, input_file_weights, mini_batch_size, stop_epoch,
         print("Loading weights from %s" % input_file_weights)
         m.load_variables(input_file_weights)
 
-    x_train, y_train, x_val, y_val, _, _ = load_data()
+    train_data, val_data, _ = load_data(DATA_PATH)
+    x_train, y_train = train_data
+    x_val, y_val = val_data
     print("Training data shape: {}".format(x_train.shape))
     print("Validation data shape: {}".format(x_val.shape))
 

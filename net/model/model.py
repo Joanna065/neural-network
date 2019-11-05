@@ -32,21 +32,8 @@ class Model(object):
         set_learning_phase(True)
 
         x, cache = self.forward_pass(x)
-
-        # loss computation
         loss, dscores = self.compute_loss(x, y)
-
-        # backward pass
-        updates = {}
-        dy = dscores
-        for idx in reversed(range(len(self._layers))):
-            # g - dict of grad values from each layer
-            x = cache[idx]
-
-            g = self._layers[idx].backward(x, dy)
-            # dx from prev layer is dy for earlier layer
-            dy = g.pop("dx")
-            updates["layer{}".format(idx)] = g
+        updates = self.backward_pass(dscores, cache)
 
         updates = self._optimizer.compute_update(updates)
         for idx, l in enumerate(self._layers):
@@ -61,6 +48,19 @@ class Model(object):
             cache.append(x)
             x = l.forward(x)
         return x, cache
+
+    def backward_pass(self, dscores, x_cache):
+        updates = {}
+        dy = dscores
+        for idx in reversed(range(len(self._layers))):
+            # g - dict of grad values from each layer
+            x = x_cache[idx]
+
+            g = self._layers[idx].backward(x, dy)
+            # dx from prev layer is dy for earlier layer
+            dy = g.pop("dx")
+            updates["layer{}".format(idx)] = g
+        return updates
 
     def predict_classes(self, x):
         # take max prob classification and reshape to (N, 1)

@@ -1,5 +1,3 @@
-import sys
-
 import numpy as np
 
 from loggers import *
@@ -36,14 +34,12 @@ class Trainer:
 
     def train_loop(self):
         x_train, y_train = self.train_data
-        loss_accum = []
-
         b = Batcher(x_train, y_train)
 
         self._callback('on_train_begin')
-
         for epoch in range(self.epochs_amount):
             self._callback('on_epoch_begin', epoch=epoch + 1)
+            loss_accum = []
             train_preds = []
             y_shuffle = []
 
@@ -57,7 +53,7 @@ class Trainer:
                 train_preds.extend(train_pred)
                 self._callback('on_batch_end')
 
-            train_loss = float(np.mean(loss_accum))
+            train_loss = np.mean(loss_accum)
             train_metrics = self.model.eval_metrics(train_preds, y_shuffle)
             train_acc = train_metrics['label_accuracy']
 
@@ -69,7 +65,7 @@ class Trainer:
 
             print(
                 "[epoch = %d] train_loss = %.5f, train_acc = %.3f,  val_loss = %.5f, val acc = %.3f     \r" %
-                (b.epoch(), train_loss, train_acc, val_loss, val_acc), flush=True)
+                (b.epoch(), float(train_loss), train_acc, val_loss, val_acc), flush=True)
 
             self._callback('on_epoch_end', epoch=epoch + 1)
             continue
