@@ -1,13 +1,11 @@
 import os
 
-import numpy as np
-
-from net.callbacks import ModelDump, SaveBestModel, LoggerUpdater
-from net.initializers import Xavier
+from net.callbacks import LoggerUpdater
+from net.initializers import *
 from net.losses import categorical_cross_entropy
 from net.metrics import LabelAccuracy
-from net.model import SimpleNet
-from net.optimizers import SGD
+from net.model import SimpleNet, Sigmoid
+from net.optimizers import *
 from settings import DATA_PATH, PROJECT_PATH
 from training import Trainer
 from utils import load_data, ensure_dir_path_exists
@@ -20,30 +18,30 @@ if __name__ == "__main__":
     out_dir = 'my_nets/simple_net'
     ensure_dir_path_exists(os.path.join(PROJECT_PATH, out_dir))
 
-    model_dictionary = {
+    model_dict = {
         'optimizer': SGD(),
         'initializer': Xavier(),
         'metrics': [LabelAccuracy()],
         'loss_fun': categorical_cross_entropy,
-        'activation': 'sigmoid',
-        'hidden_units': (500,)
+        'activation': Sigmoid,
+        'hidden_units': (100,)
     }
 
-    train_dictionary = {
+    train_dict = {
         'train_data': train_data,
         'val_data': val_data,
         'epochs': 10,
-        'batch_size': 50,
+        'batch_size': 30,
         'callbacks': [
-            ModelDump(output_dir=out_dir),
-            SaveBestModel(output_dir=out_dir),
+            # ModelDump(output_dir=out_dir),
+            # SaveBestModel(output_dir=out_dir),
             LoggerUpdater()
         ]
     }
 
-    model = SimpleNet(**model_dictionary)
+    model = SimpleNet(**model_dict)
 
-    trainer = Trainer(model, **train_dictionary)
+    trainer = Trainer(model, **train_dict)
     trainer.train_loop()
 
     # check on test data

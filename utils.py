@@ -37,7 +37,12 @@ def plot_bar(y_data, labels, x_label='', y_label='', filename=None, dirname=None
     plt.bar(x, y_data)
     plt.xticks(x, labels, fontsize=5, rotation=30)
 
-    save_plot(filename, dirname)
+    if filename is not None:
+        if dirname is not None:
+            ensure_dir_path_exists(os.path.join(SAVE_PATH, dirname))
+            plt.savefig(os.path.join(SAVE_PATH, dirname, filename) + '.png')
+        else:
+            plt.savefig(os.path.join(SAVE_PATH, filename) + '.png')
     plt.show()
 
 
@@ -48,8 +53,8 @@ def plot_data(data, legend_labels, x_label='', y_label='', filename=None, dirnam
     plt.ylabel(y_label)
 
     for y_data, label in zip(data, legend_labels):
-        x = np.arange(len(y_data))  # epoch amount
-        plt.plot(x, y_data, label)
+        x = np.arange(1, len(y_data) + 1)  # epoch amount
+        plt.plot(x, y_data, label=label)
 
     plt.legend(loc='best')
 
@@ -60,15 +65,6 @@ def plot_data(data, legend_labels, x_label='', y_label='', filename=None, dirnam
         else:
             plt.savefig(os.path.join(SAVE_PATH, filename) + '.png')
     plt.show()
-
-
-def save_plot(filename, dirname):
-    if filename is not None:
-        if dirname is not None:
-            ensure_dir_path_exists(os.path.join(SAVE_PATH, dirname))
-            plt.savefig(os.path.join(SAVE_PATH, dirname, filename) + '.png')
-        else:
-            plt.savefig(os.path.join(SAVE_PATH, filename) + '.png')
 
 
 def plot_val_loss(results, dirname=None):
@@ -91,7 +87,7 @@ def plot_val_accuracy(results, dirname=None):
               filename=filename, dirname=dirname)
 
 
-def plot_val_vs_train_acc(results, dirname=None):
+def plot_val_vs_train_acc(results, dirname):
     for (log_data, exp_label) in zip(results['log_data'], results['label']):
         val_acc = log_data['accuracy']['val']
         train_acc = log_data['accuracy']['train']
@@ -102,16 +98,16 @@ def plot_val_vs_train_acc(results, dirname=None):
                   filename=filename, dirname=dirname)
 
 
-def plot_time_bar(results, exp_name, dirname=None):
+def plot_time_bar(results, dirname):
     times = results['time']
     labels = results['label']
 
-    filename = exp_name + '_time'
+    filename = 'time'
 
     plot_bar(times, labels, x_label='', y_label='czas trwania uczenia',
              filename=filename, dirname=dirname)
 
 
-def plot_val_loss_per_batch(data, filename=None, dirname=None):
-    plot_data(data, legend_labels='dane treningowe', x_label='batch', y_label='funkcja kosztu',
-              filename=filename, dirname=dirname)
+def plot_val_loss_per_batch(data, filename, dirname):
+    plot_data(data=[data], legend_labels=['dane treningowe'], x_label='batch',
+              y_label='funkcja kosztu', filename=filename, dirname=dirname)

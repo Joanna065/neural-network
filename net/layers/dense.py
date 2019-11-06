@@ -42,7 +42,7 @@ class Dense(Layer):
         self._W = self._initializer(W_shape)
 
         if self._use_bias:
-            self._bias = np.zeros((self._units,), dtype=dtype())
+            self._bias = np.zeros((1, self._units), dtype=dtype())
 
     def output_shape(self):
         return None, self._units
@@ -63,6 +63,6 @@ class Dense(Layer):
         dx = np.dot(dy, self._W.T)
         dW = np.dot(x.T, dy)
         if self._use_bias:
-            db = dy.sum(axis=0)
+            db = dy.sum(axis=0, keepdims=True)
             return dict(dx=dx, dW=dW, db=db)
         return dict(dx=dx, dW=dW)

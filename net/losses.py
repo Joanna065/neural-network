@@ -18,6 +18,7 @@ def categorical_cross_entropy(scores, y):
     loss = np.mean(correct_logscores)
     dscores = probs
     dscores[range(len(y)), y] -= 1
+    dscores = -dscores / len(y)
     return loss, dscores
 
 

@@ -50,7 +50,7 @@ class Model(object):
         return x, cache
 
     def backward_pass(self, dscores, x_cache):
-        updates = {}
+        gradients = {}
         dy = dscores
         for idx in reversed(range(len(self._layers))):
             # g - dict of grad values from each layer
@@ -59,8 +59,8 @@ class Model(object):
             g = self._layers[idx].backward(x, dy)
             # dx from prev layer is dy for earlier layer
             dy = g.pop("dx")
-            updates["layer{}".format(idx)] = g
-        return updates
+            gradients["layer{}".format(idx)] = g
+        return gradients
 
     def predict_classes(self, x):
         # take max prob classification and reshape to (N, 1)

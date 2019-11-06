@@ -32,7 +32,7 @@ class SGD(Optimizer):
     def compute_update(self, gradients):
         for layer_name in gradients.keys():
             for var_name in gradients[layer_name].keys():
-                gradients[layer_name][var_name] *= -self._learning_rate
+                gradients[layer_name][var_name] *= self._learning_rate
         return gradients
 
 
@@ -60,7 +60,7 @@ class SGDMomentum(Optimizer):
             for var_name in gradients[layer_name].keys():
                 v = self._velocity[layer_name][var_name]
                 g = gradients[layer_name][var_name]
-                self._velocity[layer_name][var_name] = self._gamma * v - self._learning_rate * g
+                self._velocity[layer_name][var_name] = self._gamma * v + self._learning_rate * g
         return self._velocity
 
 
@@ -140,7 +140,7 @@ class Adagrad(Optimizer):
 
                 # calculate learning rate
                 lr = self._learning_rate / (np.sqrt(cache) + self._eps)
-                self._updates[layer_name][var_name] = - lr * g
+                self._updates[layer_name][var_name] = lr * g
 
         return self._updates
 
@@ -195,7 +195,7 @@ class Adadelta(Optimizer):
                 self._grad_acc[layer_name][var_name] = g_acc_new
 
                 # compute update using new grad accumulator and old update accumulator
-                update = -(np.sqrt(delta_acc + self._eps) / np.sqrt(g_acc_new + self._eps)) * g
+                update = (np.sqrt(delta_acc + self._eps) / np.sqrt(g_acc_new + self._eps)) * g
 
                 # update accumulator of updates
                 delta_acc_new = self._rho * delta_acc + (1. - self._rho) * update ** 2
@@ -240,7 +240,7 @@ class RMSprop(Optimizer):
                 self._grad_acc[layer_name][var_name] = grad_acc_new
 
                 # calculate update of weights
-                update = - self._eta / np.sqrt(grad_acc_new + self._eps) * g
+                update = self._eta / np.sqrt(grad_acc_new + self._eps) * g
                 self._updates[layer_name][var_name] = update
 
         return self._updates
@@ -304,7 +304,7 @@ class Adam(Optimizer):
                 self._v[layer_name][var_name] = v_new
 
                 # compute update for weights
-                update = -self._learning_rate / (np.sqrt(v_hat) + self._eps) * m_hat
+                update = self._learning_rate / (np.sqrt(v_hat) + self._eps) * m_hat
                 self._updates[layer_name][var_name] = update
 
         self._iter += 1
