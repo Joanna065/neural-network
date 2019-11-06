@@ -1,6 +1,8 @@
 import os
 import re
 
+import numpy as np
+
 from settings import PROJECT_PATH
 
 BEST_MODEL_FILENAME = "best_model.pkl"
@@ -38,16 +40,16 @@ class Callback:
     def on_batch_end(self, **kwargs):
         pass
 
-    def on_train_batch_begin(self, **kwargs):
+    def on_train_epoch_begin(self, **kwargs):
         pass
 
-    def on_train_batch_end(self, **kwargs):
+    def on_train_epoch_end(self, **kwargs):
         pass
 
-    def on_predict_batch_begin(self, **kwargs):
+    def on_predict_epoch_begin(self, **kwargs):
         pass
 
-    def on_predict_batch_end(self, **kwargs):
+    def on_predict_epoch_end(self, **kwargs):
         pass
 
 
@@ -63,6 +65,45 @@ class ModelDump(Callback):
 
     def on_train_begin(self, **kwargs):
         self.trainer.model.dump(os.path.join(PROJECT_PATH, self._output_dir, DUMP_FILENAME))
+
+
+class LoggerUpdater(Callback):
+    def __init__(self):
+        super().__init__()
+        self._init()
+
+    def _init(self):
+        self._loss_accum = []
+        self._train_preds = []
+        self._y_shuffle_train = []
+
+    def on_epoch_begin(self, **kwargs):
+        self._init()
+
+    def on_batch_end(self, **kwargs):
+        x, y = kwargs.get('batch')
+        self._y_shuffle_train.extend(y)
+
+        train_pred = kwargs.get('train_pred')
+        train_loss = kwargs.get('train_loss')
+        self._loss_accum.append(train_loss)
+        self._train_preds.extend(train_pred)
+
+    def on_train_epoch_end(self, **kwargs):
+        epoch = kwargs.get('epoch')
+        train_loss = np.mean(self._loss_accum)
+        train_metrics = self.trainer.model.eval_metrics(self._train_preds, self._y_shuffle_train)
+        train_acc = train_metrics['label_accuracy']
+
+        val_metrics, val_loss = self.trainer.validate()
+        val_acc = val_metrics['label_accuracy']
+
+        self.trainer.update_log('train', train_loss, train_acc)
+        self.trainer.update_log('val', val_loss, val_acc)
+
+        print(
+            "[epoch = %d] train_loss = %.5f, train_acc = %.3f,  val_loss = %.5f, val acc = %.3f\r" %
+            (epoch, float(train_loss), train_acc, val_loss, val_acc), flush=True)
 
 
 class SaveBestModel(Callback):

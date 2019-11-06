@@ -2,7 +2,7 @@ import os
 
 import numpy as np
 
-from net.callbacks import ModelDump, SaveBestModel
+from net.callbacks import ModelDump, SaveBestModel, LoggerUpdater
 from net.initializers import Xavier
 from net.losses import categorical_cross_entropy
 from net.metrics import LabelAccuracy
@@ -32,11 +32,12 @@ if __name__ == "__main__":
     train_dictionary = {
         'train_data': train_data,
         'val_data': val_data,
-        'epochs': 30,
-        'batch_size': 100,
+        'epochs': 10,
+        'batch_size': 50,
         'callbacks': [
             ModelDump(output_dir=out_dir),
-            SaveBestModel(output_dir=out_dir)
+            SaveBestModel(output_dir=out_dir),
+            LoggerUpdater()
         ]
     }
 
@@ -44,3 +45,9 @@ if __name__ == "__main__":
 
     trainer = Trainer(model, **train_dictionary)
     trainer.train_loop()
+
+    # check on test data
+    acc_metric = LabelAccuracy()
+    x_test, y_test = test_data
+    accuracy = acc_metric(model.predict_classes(x_test), y_test)
+    print('Accuracy on test data: {}'.format(accuracy))

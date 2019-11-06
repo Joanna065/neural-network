@@ -1,5 +1,3 @@
-import numpy as np
-
 from loggers import *
 from net.batcher import Batcher
 
@@ -35,37 +33,20 @@ class Trainer:
     def train_loop(self):
         x_train, y_train = self.train_data
         b = Batcher(x_train, y_train)
-
         self._callback('on_train_begin')
+
         for epoch in range(self.epochs_amount):
             self._callback('on_epoch_begin', epoch=epoch + 1)
-            loss_accum = []
-            train_preds = []
-            y_shuffle = []
 
+            self._callback('on_train_epoch_begin', epoch=epoch + 1)
             while b.epoch() < epoch + 1:
                 x, y = b(self.batch_size)
-                y_shuffle.extend(y)
                 self._callback('on_batch_begin', batch=(x, y))
                 train_loss = self.model.train(x, y)
-                loss_accum.append(train_loss)
                 train_pred = self.model.predict_classes(x)
-                train_preds.extend(train_pred)
-                self._callback('on_batch_end')
-
-            train_loss = np.mean(loss_accum)
-            train_metrics = self.model.eval_metrics(train_preds, y_shuffle)
-            train_acc = train_metrics['label_accuracy']
-
-            val_metrics, val_loss = self.validate()
-            val_acc = val_metrics['label_accuracy']
-
-            self.update_log('train', train_loss, train_acc)
-            self.update_log('val', val_loss, val_acc)
-
-            print(
-                "[epoch = %d] train_loss = %.5f, train_acc = %.3f,  val_loss = %.5f, val acc = %.3f     \r" %
-                (b.epoch(), float(train_loss), train_acc, val_loss, val_acc), flush=True)
+                self._callback('on_batch_end', batch=(x, y), train_pred=train_pred,
+                               train_loss=train_loss)
+            self._callback('on_train_epoch_end', epoch=epoch + 1)
 
             self._callback('on_epoch_end', epoch=epoch + 1)
             continue
