@@ -96,7 +96,7 @@ class Model(object):
     def get_variables(self):
         vars = {}
         for idx, layer in enumerate(self._layers):
-            vars["layer{}".format(idx)] = layer.get_variables()
+            vars["layer{} {}".format(idx, layer.__str__())] = layer.get_variables()
         return vars
 
     def param_count(self):
@@ -111,8 +111,9 @@ class Model(object):
 
     def dump(self, filename):
         with open(filename, "w") as f:
-            f.write("initializer: {}\n".format(self._initializer.__str__()))
-            f.write("optimizer: {}\n".format(self._optimizer.__str__()))
+            f.write("initializer: {}\n".format(self._initializer.name))
+            f.write("optimizer: {}\n".format(self._optimizer.name))
+            f.write("metric: {}\n".format([metric.name for metric in self._metrics]))
 
             for layer, vars in self.get_variables().items():
                 desc = "{}: ".format(layer)

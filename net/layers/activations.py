@@ -4,6 +4,8 @@ from net.layers.layer import Layer
 
 
 class ReLU(Layer):
+    name = 'relu'
+
     def forward(self, x):
         return np.maximum(0, x)
 
@@ -13,6 +15,8 @@ class ReLU(Layer):
 
 
 class Sigmoid(Layer):
+    name = 'sigmoid'
+
     def forward(self, x):
         return 1 / (1 + np.exp(-x))
 
@@ -23,6 +27,8 @@ class Sigmoid(Layer):
 
 
 class Tanh(Layer):
+    name = 'tanh'
+
     def forward(self, x):
         return np.tanh(x)
 
@@ -32,6 +38,8 @@ class Tanh(Layer):
 
 
 class LeakyReLU(Layer):
+    name = 'leaky relu'
+
     def forward(self, x):
         pass
 

@@ -3,7 +3,7 @@ import re
 
 import numpy as np
 
-from settings import PROJECT_PATH
+from settings import SAVE_PATH
 
 BEST_MODEL_FILENAME = "best_model.pkl"
 BEST_VAL_ACCURACY_FILENAME = "best_val_accuracy.txt"
@@ -64,7 +64,7 @@ class ModelDump(Callback):
         self._output_dir = output_dir
 
     def on_train_begin(self, **kwargs):
-        self.trainer.model.dump(os.path.join(PROJECT_PATH, self._output_dir, DUMP_FILENAME))
+        self.trainer.model.dump(os.path.join(SAVE_PATH, self._output_dir, DUMP_FILENAME))
 
 
 class LoggerUpdater(Callback):
@@ -82,12 +82,16 @@ class LoggerUpdater(Callback):
 
     def on_batch_end(self, **kwargs):
         x, y = kwargs.get('batch')
-        self._y_shuffle_train.extend(y)
-
+        epoch = kwargs.get('epoch')
         train_pred = kwargs.get('train_pred')
         train_loss = kwargs.get('train_loss')
+
+        self._y_shuffle_train.extend(y)
         self._loss_accum.append(train_loss)
         self._train_preds.extend(train_pred)
+
+        if epoch == 1:
+            self.trainer.update_batch_log(train_loss)
 
     def on_train_epoch_end(self, **kwargs):
         epoch = kwargs.get('epoch')
@@ -98,8 +102,8 @@ class LoggerUpdater(Callback):
         val_metrics, val_loss = self.trainer.validate()
         val_acc = val_metrics['label_accuracy']
 
-        self.trainer.update_log('train', train_loss, train_acc)
-        self.trainer.update_log('val', val_loss, val_acc)
+        self.trainer.update_epoch_log('train', train_loss, train_acc)
+        self.trainer.update_epoch_log('val', val_loss, val_acc)
 
         print(
             "[epoch = %d] train_loss = %.5f, train_acc = %.3f,  val_loss = %.5f, val acc = %.3f\r" %
@@ -124,7 +128,7 @@ class SaveBestModel(Callback):
         if last_val_accuracy > self._best_accuracy:
             self._best_accuracy = last_val_accuracy
             self.trainer.model.save_variables(
-                os.path.join(PROJECT_PATH, self._output_dir, BEST_MODEL_FILENAME))
+                os.path.join(SAVE_PATH, self._output_dir, BEST_MODEL_FILENAME))
             self._write_accuracy(epoch)
 
     def _write_accuracy(self, epoch):
@@ -132,7 +136,7 @@ class SaveBestModel(Callback):
         Writes and saves best achieved accuracy during training
         :param epoch: epoch number in which that accuracy occurred
         """
-        with open(os.path.join(PROJECT_PATH, self._output_dir, BEST_VAL_ACCURACY_FILENAME),
+        with open(os.path.join(SAVE_PATH, self._output_dir, BEST_VAL_ACCURACY_FILENAME),
                   "w") as f:
             f.write("accuracy = %f\n" % self._best_accuracy)
             f.write("epoch = %d\n" % epoch)

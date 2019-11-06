@@ -16,9 +16,12 @@ class Trainer:
         for cb in self.callbacks:
             cb.set_trainer(self)
 
-    def update_log(self, tag, loss, accuracy):
-        self.logger.add_loss(tag, loss)
-        self.logger.add_accuracy(tag, accuracy)
+    def update_epoch_log(self, tag, loss, accuracy):
+        self.logger.add_loss_per_epoch(tag, loss)
+        self.logger.add_accuracy_per_epoch(tag, accuracy)
+
+    def update_batch_log(self, loss):
+        self.logger.add_loss_per_batch(loss)
 
     def validate(self):
         x_val, y_val = self.val_data
@@ -44,8 +47,8 @@ class Trainer:
                 self._callback('on_batch_begin', batch=(x, y))
                 train_loss = self.model.train(x, y)
                 train_pred = self.model.predict_classes(x)
-                self._callback('on_batch_end', batch=(x, y), train_pred=train_pred,
-                               train_loss=train_loss)
+                self._callback('on_batch_end', batch=(x, y), epoch=epoch + 1,
+                               train_pred=train_pred, train_loss=train_loss)
             self._callback('on_train_epoch_end', epoch=epoch + 1)
 
             self._callback('on_epoch_end', epoch=epoch + 1)

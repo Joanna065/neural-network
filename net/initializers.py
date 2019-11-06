@@ -21,6 +21,7 @@ class Initializer(object):
 
 
 class RandomInit(Initializer):
+    name = 'random init'
     """
         only for Dense layer
     """
@@ -46,6 +47,7 @@ class RandomInit(Initializer):
 
 
 class Randomization(Initializer):
+    name = 'randomization init'
     """
     only for Dense layer
     """
@@ -58,6 +60,7 @@ class Randomization(Initializer):
 
 
 class KaimingHe(Initializer):
+    name = 'kaiming he'
     """
     initializer for ReLu activation function
     """
@@ -70,11 +73,31 @@ class KaimingHe(Initializer):
 
 
 class Xavier(Initializer):
+    name = 'xavier'
 
     def __call__(self, shape):
         fan_in, fan_out = get_fans(shape)
         s = np.sqrt(6 / (fan_in + fan_out))
         W = np.random.uniform(-s, s, size=shape)
+        return W
+
+
+class ZeroInit(Initializer):
+    name = 'zero init'
+    """
+    Inits all weight to zero
+    """
+
+    def __call__(self, shape):
+        W = np.zeros(shape)
+        return W
+
+
+class NormalInit(Initializer):
+    name = 'normal init'
+
+    def __call__(self, shape):
+        W = np.random.normal(size=shape)
         return W
 
 
