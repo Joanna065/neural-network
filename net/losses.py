@@ -1,9 +1,14 @@
 import numpy as np
 
-#
-# def mean_squared_error(scores, y):
-#     loss = np.mean((y - scores) ** 2)
-#     dscores =
+from utils import to_one_hot
+
+
+def mean_squared_error(scores, y):
+    y_onehot = to_one_hot(y)
+    error = y_onehot - scores
+    loss = np.mean(error ** 2)
+    dscores = error / len(y)
+    return loss, dscores
 
 
 def categorical_cross_entropy(scores, y):

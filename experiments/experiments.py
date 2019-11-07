@@ -4,21 +4,36 @@ from time import time
 from net.callbacks import LoggerUpdater
 from net.initializers import *
 from net.layers.activations import *
-from net.losses import categorical_cross_entropy
+from net.losses import categorical_cross_entropy, mean_squared_error
 from net.metrics import LabelAccuracy
 from net.model import SimpleNet
 from net.optimizers import *
 from settings import DATA_PATH
 from training import Trainer
 from utils import plot_val_loss_per_batch, load_data, plot_val_loss, plot_val_accuracy, \
-    plot_time_bar, plot_val_vs_train_acc
+    plot_time_bar
 
 
 def batch_size_experiment(model_dict, train_dict):
     def exp_generator():
-        for batch_size in [5000, 2000, 500, 100, 30, 1]:
+        for batch_size in [2000, 500, 100, 30, 10, 5]:
             train_dict['batch_size'] = batch_size
             yield model_dict, train_dict, 'batch_size', batch_size
+
+    return exp_generator
+
+
+def init_range_experiment(model_dict, train_dict):
+    def exp_generator():
+        for initializer, range in [
+            (RangeInit(range=(0.0, 0.0)), '[0.0, 0.0]'),
+            (RangeInit(range=(0.1, 0.1)), '[0.1, 0.1]'),
+            (RangeInit(range=(0.3, 0.3)), '[0.3, 0.3]'),
+            (RangeInit(range=(0.5, 0.5)), '[0.5, 0.5]'),
+            (RangeInit(range=(1.0, 1.0)), '[1.0, 1.0]')
+        ]:
+            model_dict['initializer'] = initializer
+            yield model_dict, train_dict, 'init_range', range
 
     return exp_generator
 
@@ -28,7 +43,7 @@ def initializer_experiment(model_dict, train_dict):
         for initializer in [
             ZeroInit(),
             NormalInit(),
-            RandomInit(model_dict['activation']),
+            RandomInit(model_dict['activation'].name),
             Randomization(),
             Xavier(),
             KaimingHe()
@@ -41,9 +56,10 @@ def initializer_experiment(model_dict, train_dict):
 
 def hidden_layer_experimnt(model_dict, train_dict):
     def exp_generator():
-        for hidden_units in [(10,), (100,), (300,), (500,)]:
-            train_dict['hidden_units'] = hidden_units
+        for hidden_units in [10, 100, 300, 500, 1000]:
+            model_dict['hidden_units'] = (hidden_units,)
             yield model_dict, train_dict, 'hidden_layer', hidden_units
+        train_dict['epochs'] = 100
 
     return exp_generator
 
@@ -57,13 +73,26 @@ def activation_fun_experiment(model_dict, train_dict):
     return exp_generator
 
 
+def loss_fun_experiment(model_dict, train_dict):
+    def exp_generator():
+        for loss_fun, loss_name in [
+            (categorical_cross_entropy, 'cross_entropy'),
+            (mean_squared_error, 'MSE')
+        ]:
+            model_dict['loss_fun'] = loss_fun
+            yield model_dict, train_dict, 'loss_function', loss_name
+        train_dict['epochs'] = 50
+
+    return exp_generator
+
+
 def optimizer_experiment(model_dict, train_dict):
     def exp_generator():
         for optimizer, params in [
-            (SGD(), ': lr=0.1'),
+            (SGD(learning_rate=0.1), ': lr=0.1'),
             (SGD(), ': lr=0.01'),
             (SGDMomentum(), ': lr=0.01'),
-            (NAG(), ': lr=0.01'),
+            (NAG(learning_rate=0.01), ': lr=0.01'),
             (Adagrad(), ': rho=0.01'),
             (Adadelta(), ': rho=0.95'),
             (RMSprop(), ': rho=0.9, eta=0.001'),
@@ -83,7 +112,7 @@ def run_experiment(experiment_generator, out_dir, test_data, plot_loss_batch=Fal
         model = SimpleNet(**model_dict)
         trainer = Trainer(model, **train_dict)
 
-        label = exp_name + str(value)
+        label = f'{exp_name}={value}'
         print(f'{i}. {label}')
 
         start_time = time()
@@ -138,35 +167,50 @@ if __name__ == "__main__":
         ]
     }
 
-    # Experiment - BATCH SIZE
-    results = run_experiment(batch_size_experiment(model_dict, train_dict), out_dir='batch_size',
-                             test_data=test_data, plot_loss_batch=True)
-    plot_val_loss(results, dirname='batch_size')
-    plot_val_accuracy(results, dirname='batch_size')
-    plot_time_bar(results, dirname='batch_size')
+    # # Experiment - BATCH SIZE
+    # results = run_experiment(batch_size_experiment(model_dict, train_dict), out_dir='batch_size',
+    #                          test_data=test_data, plot_loss_batch=True)
+    # plot_val_loss(results, dirname='batch_size')
+    # plot_val_accuracy(results, dirname='batch_size')
+    # plot_time_bar(results, dirname='batch_size')
 
-    # Experiment - HIDDEN LAYER SIZE
-    results = run_experiment(hidden_layer_experimnt(model_dict, train_dict), out_dir='hidden_layer',
+    # Experiment - INIT RANGE
+    results = run_experiment(init_range_experiment(model_dict, train_dict), out_dir='init_range',
                              test_data=test_data)
-    plot_val_loss(results, dirname='hidden_layer')
-    plot_val_accuracy(results, dirname='hidden_layer')
-    plot_val_vs_train_acc(results, dirname='hidden_layer')
+    plot_val_loss(results, dirname='init_range')
+    plot_val_accuracy(results, dirname='init_range')
 
-    # Experiment - initializers
-    results = run_experiment(initializer_experiment(model_dict, train_dict), out_dir='initializer',
-                             test_data=test_data)
-    plot_val_loss(results, dirname='initializer')
-    plot_val_accuracy(results, dirname='initializer')
+    # # Experiment - HIDDEN LAYER SIZE
+    # results = run_experiment(hidden_layer_experimnt(model_dict, train_dict), out_dir='hidden_layer',
+    #                          test_data=test_data)
+    # plot_val_loss(results, dirname='hidden_layer')
+    # plot_val_accuracy(results, dirname='hidden_layer')
+    # plot_val_vs_train_acc(results, dirname='hidden_layer')
+    # plot_time_bar(results, dirname='hidden_layer')
 
-    # Experiment - ACTIVATION FUNCTIONS
-    results = run_experiment(activation_fun_experiment(model_dict, train_dict),
-                             out_dir='activation', test_data=test_data)
-    plot_val_loss(results, dirname='activation')
-    plot_val_accuracy(results, dirname='activation')
+    # # Experiment - initializers
+    # results = run_experiment(initializer_experiment(model_dict, train_dict), out_dir='initializer',
+    #                          test_data=test_data)
+    # plot_val_loss(results, dirname='initializer')
+    # plot_val_accuracy(results, dirname='initializer')
 
-    # Experiment - OPTIMIZERS
-    results = run_experiment(optimizer_experiment(model_dict, train_dict), out_dir='optimizer',
-                             test_data=test_data)
-    plot_val_loss(results, dirname='optimizer')
-    plot_val_accuracy(results, dirname='optimizer')
-    plot_time_bar(results, dirname='optimizer')
+    # # Experiment - ACTIVATION FUNCTIONS
+    # results = run_experiment(activation_fun_experiment(model_dict, train_dict),
+    #                          out_dir='activation', test_data=test_data)
+    # plot_val_loss(results, dirname='activation')
+    # plot_val_accuracy(results, dirname='activation')
+
+    # # Experiment - OPTIMIZERS
+    # results = run_experiment(optimizer_experiment(model_dict, train_dict), out_dir='optimizer',
+    #                          test_data=test_data)
+    # results['label'] = [res_label[10:] for res_label in results['label']]
+    #
+    # plot_val_loss(results, dirname='optimizer')
+    # plot_val_accuracy(results, dirname='optimizer')
+    # plot_time_bar(results, dirname='optimizer')
+
+    # # Experiment - LOSS FUNCTION
+    # results = run_experiment(loss_fun_experiment(model_dict, train_dict), out_dir='loss_fun',
+    #                          test_data=test_data)
+    # plot_val_loss(results, dirname='loss_fun')
+    # plot_val_accuracy(results, dirname='loss_fun')

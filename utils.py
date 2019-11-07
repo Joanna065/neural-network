@@ -13,6 +13,11 @@ def load_data(filename):
     return train_data, val_data, test_data
 
 
+def to_one_hot(labels):
+    n_values = 10
+    return np.eye(n_values)[labels]
+
+
 def ensure_dir_path_exists(path):
     """Checks if path is an existing directory and if not, creates it."""
     if not os.path.isdir(path):
@@ -35,7 +40,7 @@ def plot_bar(y_data, labels, x_label='', y_label='', filename=None, dirname=None
 
     x = np.arange(len(labels))
     plt.bar(x, y_data)
-    plt.xticks(x, labels, fontsize=5, rotation=30)
+    plt.xticks(x, labels, fontsize=8, rotation=15)
 
     if filename is not None:
         if dirname is not None:
@@ -46,7 +51,8 @@ def plot_bar(y_data, labels, x_label='', y_label='', filename=None, dirname=None
     plt.show()
 
 
-def plot_data(data, legend_labels, x_label='', y_label='', filename=None, dirname=None):
+def plot_data(data, legend_labels, x_label='', y_label='', filename=None, dirname=None,
+              leg_loc='best'):
     plt.tight_layout()
     plt.figure(figsize=(10, 5))
     plt.xlabel(x_label)
@@ -56,7 +62,7 @@ def plot_data(data, legend_labels, x_label='', y_label='', filename=None, dirnam
         x = np.arange(1, len(y_data) + 1)  # epoch amount
         plt.plot(x, y_data, label=label)
 
-    plt.legend(loc='best')
+    plt.legend(loc=leg_loc)
 
     if filename is not None:
         if dirname is not None:
@@ -74,7 +80,7 @@ def plot_val_loss(results, dirname=None):
 
     filename = 'loss_val'
     plot_data(val_loss_data, results['label'], x_label='epoka', y_label='funkcja kosztu',
-              filename=filename, dirname=dirname)
+              filename=filename, dirname=dirname, leg_loc='upper right')
 
 
 def plot_val_accuracy(results, dirname=None):
@@ -83,8 +89,8 @@ def plot_val_accuracy(results, dirname=None):
         val_acc_data.append(log_data['accuracy']['val'])
 
     filename = 'acc_val'
-    plot_data(val_acc_data, results['label'], x_label='epoka', y_label='funkcja kosztu',
-              filename=filename, dirname=dirname)
+    plot_data(val_acc_data, results['label'], x_label='epoka', y_label='skuteczność',
+              filename=filename, dirname=dirname, leg_loc='lower right')
 
 
 def plot_val_vs_train_acc(results, dirname):
@@ -104,7 +110,7 @@ def plot_time_bar(results, dirname):
 
     filename = 'time'
 
-    plot_bar(times, labels, x_label='', y_label='czas trwania uczenia',
+    plot_bar(times, labels, x_label='', y_label='czas trwania uczenia [s]',
              filename=filename, dirname=dirname)
 
 

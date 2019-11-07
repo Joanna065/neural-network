@@ -31,7 +31,7 @@ if __name__ == "__main__":
         'train_data': train_data,
         'val_data': val_data,
         'epochs': 10,
-        'batch_size': 30,
+        'batch_size': 50,
         'callbacks': [
             # ModelDump(output_dir=out_dir),
             # SaveBestModel(output_dir=out_dir),

@@ -38,11 +38,25 @@ class RandomInit(Initializer):
             a = 2.38
         elif self._activation_fun == 'relu':
             a = 2.0
+        elif self._activation_fun == 'tanh':
+            a = 1.0
         else:
             raise ValueError('Missing specified activation function')
 
         s = a / np.sqrt(fan_in)
         W = np.random.uniform(-s, s, size=shape)
+        return W
+
+
+class RangeInit(Initializer):
+    name = 'range init'
+
+    def __init__(self, range):
+        self._range = range
+
+    def __call__(self, shape):
+        low, high = self._range
+        W = np.random.uniform(low, high, shape)
         return W
 
 
