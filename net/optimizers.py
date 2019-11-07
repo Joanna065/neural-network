@@ -88,8 +88,8 @@ class NAG(Optimizer):  # Nesterov Accelerated Gradient
                 v = self._velocity[layer_name][var_name]
                 v_prev = v
                 g = gradients[layer_name][var_name]
-                v = self._gamma * v - self._learning_rate * g
-                self._velocity[layer_name][var_name] = self._gamma * v_prev - (
+                v = self._gamma * v + self._learning_rate * g
+                self._velocity[layer_name][var_name] = -self._gamma * v_prev + (
                         1 + self._gamma) * v
         return self._velocity
 

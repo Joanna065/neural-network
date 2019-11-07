@@ -81,6 +81,7 @@ def plot_val_loss(results, dirname=None):
     filename = 'loss_val'
     plot_data(val_loss_data, results['label'], x_label='epoka', y_label='funkcja kosztu',
               filename=filename, dirname=dirname, leg_loc='upper right')
+    # leg_loc='upper right'
 
 
 def plot_val_accuracy(results, dirname=None):
@@ -91,6 +92,19 @@ def plot_val_accuracy(results, dirname=None):
     filename = 'acc_val'
     plot_data(val_acc_data, results['label'], x_label='epoka', y_label='skuteczność',
               filename=filename, dirname=dirname, leg_loc='lower right')
+    #   , leg_loc='lower right'
+
+
+def plot_cross_mse_val_loss(results, dirname=None):
+    cross_entropy_results = results['log_data'][0]['loss_epoch']['val']
+    mse_results = results['log_data'][1]['loss_epoch']['val']
+    cross_filename = 'cross_entropy_loss_val'
+    mse_filename = 'mse_loss_val'
+    plot_data([cross_entropy_results], [results['label'][0]], x_label='epoka',
+              y_label='funkcja kosztu', filename=cross_filename, dirname=dirname,
+              leg_loc='upper right')
+    plot_data([mse_results], [results['label'][1]], x_label='epoka', y_label='funkcja kosztu',
+              filename=mse_filename, dirname=dirname, leg_loc='upper right')
 
 
 def plot_val_vs_train_acc(results, dirname):

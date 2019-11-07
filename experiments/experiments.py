@@ -11,7 +11,7 @@ from net.optimizers import *
 from settings import DATA_PATH
 from training import Trainer
 from utils import plot_val_loss_per_batch, load_data, plot_val_loss, plot_val_accuracy, \
-    plot_time_bar
+    plot_time_bar, plot_val_vs_train_acc, plot_cross_mse_val_loss
 
 
 def batch_size_experiment(model_dict, train_dict):
@@ -27,10 +27,10 @@ def init_range_experiment(model_dict, train_dict):
     def exp_generator():
         for initializer, range in [
             (RangeInit(range=(0.0, 0.0)), '[0.0, 0.0]'),
-            (RangeInit(range=(0.1, 0.1)), '[0.1, 0.1]'),
-            (RangeInit(range=(0.3, 0.3)), '[0.3, 0.3]'),
-            (RangeInit(range=(0.5, 0.5)), '[0.5, 0.5]'),
-            (RangeInit(range=(1.0, 1.0)), '[1.0, 1.0]')
+            (RangeInit(range=(-0.1, 0.1)), '[-0.1, 0.1]'),
+            (RangeInit(range=(-0.3, 0.3)), '[-0.3, 0.3]'),
+            (RangeInit(range=(-0.5, 0.5)), '[-0.5, 0.5]'),
+            (RangeInit(range=(-1.0, 1.0)), '[-1.0, 1.0]')
         ]:
             model_dict['initializer'] = initializer
             yield model_dict, train_dict, 'init_range', range
@@ -56,10 +56,10 @@ def initializer_experiment(model_dict, train_dict):
 
 def hidden_layer_experimnt(model_dict, train_dict):
     def exp_generator():
-        for hidden_units in [10, 100, 300, 500, 1000]:
+        for hidden_units in [5, 10, 200, 500, 1000]:
             model_dict['hidden_units'] = (hidden_units,)
+            train_dict['epochs'] = 50
             yield model_dict, train_dict, 'hidden_layer', hidden_units
-        train_dict['epochs'] = 100
 
     return exp_generator
 
@@ -80,8 +80,8 @@ def loss_fun_experiment(model_dict, train_dict):
             (mean_squared_error, 'MSE')
         ]:
             model_dict['loss_fun'] = loss_fun
+            train_dict['epochs'] = 60
             yield model_dict, train_dict, 'loss_function', loss_name
-        train_dict['epochs'] = 50
 
     return exp_generator
 
@@ -174,11 +174,11 @@ if __name__ == "__main__":
     # plot_val_accuracy(results, dirname='batch_size')
     # plot_time_bar(results, dirname='batch_size')
 
-    # Experiment - INIT RANGE
-    results = run_experiment(init_range_experiment(model_dict, train_dict), out_dir='init_range',
-                             test_data=test_data)
-    plot_val_loss(results, dirname='init_range')
-    plot_val_accuracy(results, dirname='init_range')
+    # # Experiment - INIT RANGE
+    # results = run_experiment(init_range_experiment(model_dict, train_dict), out_dir='init_range',
+    #                          test_data=test_data)
+    # plot_val_loss(results, dirname='init_range')
+    # plot_val_accuracy(results, dirname='init_range')
 
     # # Experiment - HIDDEN LAYER SIZE
     # results = run_experiment(hidden_layer_experimnt(model_dict, train_dict), out_dir='hidden_layer',
@@ -209,8 +209,10 @@ if __name__ == "__main__":
     # plot_val_accuracy(results, dirname='optimizer')
     # plot_time_bar(results, dirname='optimizer')
 
-    # # Experiment - LOSS FUNCTION
-    # results = run_experiment(loss_fun_experiment(model_dict, train_dict), out_dir='loss_fun',
-    #                          test_data=test_data)
-    # plot_val_loss(results, dirname='loss_fun')
-    # plot_val_accuracy(results, dirname='loss_fun')
+    # Experiment - LOSS FUNCTION
+    results = run_experiment(loss_fun_experiment(model_dict, train_dict), out_dir='loss_fun',
+                             test_data=test_data)
+
+    plot_cross_mse_val_loss(results, dirname='loss_fun')
+    plot_val_accuracy(results, dirname='loss_fun')
+    plot_time_bar(results, dirname='loss_fun')
