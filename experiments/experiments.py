@@ -167,47 +167,47 @@ if __name__ == "__main__":
         ]
     }
 
-    # # Experiment - BATCH SIZE
-    # results = run_experiment(batch_size_experiment(model_dict, train_dict), out_dir='batch_size',
-    #                          test_data=test_data, plot_loss_batch=True)
-    # plot_val_loss(results, dirname='batch_size')
-    # plot_val_accuracy(results, dirname='batch_size')
-    # plot_time_bar(results, dirname='batch_size')
+    # Experiment - BATCH SIZE
+    results = run_experiment(batch_size_experiment(model_dict, train_dict), out_dir='batch_size',
+                             test_data=test_data, plot_loss_batch=True)
+    plot_val_loss(results, dirname='batch_size')
+    plot_val_accuracy(results, dirname='batch_size')
+    plot_time_bar(results, dirname='batch_size')
 
-    # # Experiment - INIT RANGE
-    # results = run_experiment(init_range_experiment(model_dict, train_dict), out_dir='init_range',
-    #                          test_data=test_data)
-    # plot_val_loss(results, dirname='init_range')
-    # plot_val_accuracy(results, dirname='init_range')
+    # Experiment - INIT RANGE
+    results = run_experiment(init_range_experiment(model_dict, train_dict), out_dir='init_range',
+                             test_data=test_data)
+    plot_val_loss(results, dirname='init_range')
+    plot_val_accuracy(results, dirname='init_range')
 
-    # # Experiment - HIDDEN LAYER SIZE
-    # results = run_experiment(hidden_layer_experimnt(model_dict, train_dict), out_dir='hidden_layer',
-    #                          test_data=test_data)
-    # plot_val_loss(results, dirname='hidden_layer')
-    # plot_val_accuracy(results, dirname='hidden_layer')
-    # plot_val_vs_train_acc(results, dirname='hidden_layer')
-    # plot_time_bar(results, dirname='hidden_layer')
+    # Experiment - HIDDEN LAYER SIZE
+    results = run_experiment(hidden_layer_experimnt(model_dict, train_dict), out_dir='hidden_layer',
+                             test_data=test_data)
+    plot_val_loss(results, dirname='hidden_layer')
+    plot_val_accuracy(results, dirname='hidden_layer')
+    plot_val_vs_train_acc(results, dirname='hidden_layer')
+    plot_time_bar(results, dirname='hidden_layer')
 
-    # # Experiment - initializers
-    # results = run_experiment(initializer_experiment(model_dict, train_dict), out_dir='initializer',
-    #                          test_data=test_data)
-    # plot_val_loss(results, dirname='initializer')
-    # plot_val_accuracy(results, dirname='initializer')
+    # Experiment - initializers
+    results = run_experiment(initializer_experiment(model_dict, train_dict), out_dir='initializer',
+                             test_data=test_data)
+    plot_val_loss(results, dirname='initializer')
+    plot_val_accuracy(results, dirname='initializer')
 
-    # # Experiment - ACTIVATION FUNCTIONS
-    # results = run_experiment(activation_fun_experiment(model_dict, train_dict),
-    #                          out_dir='activation', test_data=test_data)
-    # plot_val_loss(results, dirname='activation')
-    # plot_val_accuracy(results, dirname='activation')
+    # Experiment - ACTIVATION FUNCTIONS
+    results = run_experiment(activation_fun_experiment(model_dict, train_dict),
+                             out_dir='activation', test_data=test_data)
+    plot_val_loss(results, dirname='activation')
+    plot_val_accuracy(results, dirname='activation')
 
-    # # Experiment - OPTIMIZERS
-    # results = run_experiment(optimizer_experiment(model_dict, train_dict), out_dir='optimizer',
-    #                          test_data=test_data)
-    # results['label'] = [res_label[10:] for res_label in results['label']]
-    #
-    # plot_val_loss(results, dirname='optimizer')
-    # plot_val_accuracy(results, dirname='optimizer')
-    # plot_time_bar(results, dirname='optimizer')
+    # Experiment - OPTIMIZERS
+    results = run_experiment(optimizer_experiment(model_dict, train_dict), out_dir='optimizer',
+                             test_data=test_data)
+    results['label'] = [res_label[10:] for res_label in results['label']]
+
+    plot_val_loss(results, dirname='optimizer')
+    plot_val_accuracy(results, dirname='optimizer')
+    plot_time_bar(results, dirname='optimizer')
 
     # Experiment - LOSS FUNCTION
     results = run_experiment(loss_fun_experiment(model_dict, train_dict), out_dir='loss_fun',
