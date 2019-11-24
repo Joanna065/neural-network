@@ -15,7 +15,8 @@ def get_model(model_name, optimizer='SGDMomentum', initializer='Xavier', activat
     activation = get_activation(activation)
 
     models = dict(
-        SimpleNet=SimpleNet(optimizer, initializer, metrics, loss_fun, activation, hidden_units)
+        SimpleNet=SimpleNet(optimizer, initializer, metrics, loss_fun, activation, hidden_units),
+        SimpleConv=SimpleConv(optimizer, metrics, loss_fun)
     )
 
     m = models[model_name]

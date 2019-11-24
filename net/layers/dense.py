@@ -1,10 +1,11 @@
 import numpy as np
 
-from net import dtype
+from net.initializers import Xavier, ZeroInit
 from net.layers.layer import Layer
 
 
 class Dense(Layer):
+    name = 'dense'
     """
     Dense layer performing the following operation:
       y = xW + b
@@ -14,9 +15,12 @@ class Dense(Layer):
       y - output of shape (N, units)
     """
 
-    def __init__(self, units, use_bias=True):
+    def __init__(self, units, weights_initializer=Xavier(),
+                 bias_initializer=ZeroInit(), use_bias=True):
         super().__init__()
-        self._units = units
+        self.units = units
+        self.weights_initializer = weights_initializer
+        self.bias_initializer = bias_initializer
         self._use_bias = use_bias
         self._W = None
         self._bias = None
@@ -38,14 +42,14 @@ class Dense(Layer):
 
     def _build(self):
         assert len(self._input_shape) == 2, "input array to dense layer should be two-dimensional"
-        W_shape = self._input_shape[1], self._units
-        self._W = self._initializer(W_shape)
+        W_shape = self._input_shape[1], self.units
+        self._W = self.weights_initializer(W_shape)
 
         if self._use_bias:
-            self._bias = np.zeros((1, self._units), dtype=dtype())
+            self._bias = self.bias_initializer((1, self.units))
 
     def output_shape(self):
-        return None, self._units
+        return None, self.units
 
     def forward(self, x):
         return np.dot(x, self._W) + self._bias if self._use_bias else np.dot(x, self._W)

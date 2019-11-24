@@ -18,6 +18,11 @@ def to_one_hot(labels):
     return np.eye(n_values)[labels]
 
 
+def check_class_distribution(y_labels):
+    unique, counts = np.unique(y_labels, return_counts=True)
+    return dict(zip(unique, counts))
+
+
 def ensure_dir_path_exists(path):
     """Checks if path is an existing directory and if not, creates it."""
     if not os.path.isdir(path):

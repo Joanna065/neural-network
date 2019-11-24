@@ -14,15 +14,13 @@ class Layer(object):
     def output_shape(self):
         return self._input_shape
 
-    def build(self, input_shape, initializer, optimizer):
+    def build(self, input_shape, optimizer=None):
         """
         Initialize layer variables for given input shape.
         :param optimizer: optimizer object
-        :param initializer: initializer object
         :param input_shape: tuple with first entry corresponding to batch dimension
         """
         self._input_shape = input_shape
-        self._initializer = initializer
         self._optimizer = optimizer
         self._build()
 

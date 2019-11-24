@@ -44,7 +44,7 @@ class RandomInit(Initializer):
             raise ValueError('Missing specified activation function')
 
         s = a / np.sqrt(fan_in)
-        W = np.random.uniform(-s, s, size=shape)
+        W = np.random.uniform(-s, s, size=shape).astype(dtype())
         return W
 
 
@@ -56,7 +56,7 @@ class RangeInit(Initializer):
 
     def __call__(self, shape):
         low, high = self._range
-        W = np.random.uniform(low, high, shape)
+        W = np.random.uniform(low, high, shape).astype(dtype())
         return W
 
 
@@ -69,7 +69,7 @@ class Randomization(Initializer):
     def __call__(self, shape):
         fan_in, fan_out = get_fans(shape)
         s = fan_out ** (1.0 / fan_in)
-        W = np.random.uniform(-s, s, size=shape)
+        W = np.random.uniform(-s, s, size=shape).astype(dtype())
         return W
 
 
@@ -92,7 +92,7 @@ class Xavier(Initializer):
     def __call__(self, shape):
         fan_in, fan_out = get_fans(shape)
         s = np.sqrt(6 / (fan_in + fan_out))
-        W = np.random.uniform(-s, s, size=shape)
+        W = np.random.uniform(-s, s, size=shape).astype(dtype())
         return W
 
 
@@ -103,7 +103,7 @@ class ZeroInit(Initializer):
     """
 
     def __call__(self, shape):
-        W = np.zeros(shape)
+        W = np.zeros(shape, dtype=dtype())
         return W
 
 
@@ -111,7 +111,7 @@ class NormalInit(Initializer):
     name = 'normal init'
 
     def __call__(self, shape):
-        W = np.random.normal(size=shape)
+        W = np.random.normal(size=shape).astype(dtype())
         return W
 
 
