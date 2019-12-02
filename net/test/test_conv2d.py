@@ -105,7 +105,7 @@ def test_backward():
     y = l.forward(x)
 
     grads = l.backward(x, np.ones_like(y))
-    # assert grads["dx"].shape == x.shape
+    assert grads["dx"].shape == x.shape
     expected_db = np.array([9, 9]).reshape((1, 1, 1, 2))
     expected_dW = np.array([[[14, 11, 11],
                              [17, 17, 17],
@@ -113,10 +113,6 @@ def test_backward():
                             [[14, 11, 11],
                              [17, 17, 17],
                              [13, 20, 22]]]).reshape((2, 3, 3, 1))
-
-    print(expected_dW)
-    print(expected_dW.shape)
-    print(grads['dW'].shape)
 
     assert grads["dW"].shape == (2, 3, 3, 1)
     assert grads["db"].shape == (1, 1, 1, 2)

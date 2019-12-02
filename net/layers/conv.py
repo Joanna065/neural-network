@@ -78,9 +78,9 @@ class Conv2D(Layer):
             self._bias = vars["bias"]
 
     def apply_gradients(self, grads):
-        self._F -= grads["dW"]
+        self._F += grads["dW"]
         if self._use_bias:
-            self._bias -= grads["db"]
+            self._bias += grads["db"]
 
     def forward(self, x):
         p = self._padding
@@ -100,7 +100,9 @@ class Conv2D(Layer):
                                                          sW * self._stride,
                                                          sH, sW, sD),
                                                      writeable=False).astype(dtype())
-        return np.einsum('fhwd,nHWhwd->nHWf', self._F, x_expanded) + self._bias
+        return np.einsum('fhwd,nHWhwd->nHWf', self._F,
+                         x_expanded) + self._bias if self._use_bias else \
+            np.einsum('fhwd,nHWhwd->nHWf', self._F, x_expanded)
 
     def backward(self, x, dy):
         p = self._padding
@@ -124,8 +126,8 @@ class Conv2D(Layer):
                                                          dy_pad_y.shape[2]),
                                                      strides=(
                                                          sN,
-                                                         sH * self._stride,
-                                                         sW * self._stride,
+                                                         sH,
+                                                         sW,
                                                          sD,
                                                          sH,
                                                          sW),
@@ -146,8 +148,8 @@ class Conv2D(Layer):
                                                              self._kernel_size,
                                                              self._kernel_size),
                                                       strides=(sN,
-                                                               s_dy_H * self._stride,
-                                                               s_dy_W * self._stride,
+                                                               s_dy_H,
+                                                               s_dy_W,
                                                                s_dy_F,
                                                                dy_padded.strides[1],
                                                                dy_padded.strides[2]),

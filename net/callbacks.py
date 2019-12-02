@@ -4,6 +4,7 @@ import re
 import numpy as np
 
 from settings import SAVE_PATH
+from utils import ensure_dir_path_exists
 
 BEST_MODEL_FILENAME = "best_model.pkl"
 BEST_VAL_ACCURACY_FILENAME = "best_val_accuracy.txt"
@@ -62,9 +63,11 @@ class ModelDump(Callback):
     def __init__(self, output_dir):
         super().__init__()
         self._output_dir = output_dir
+        self._save_dir = os.path.join(SAVE_PATH, self._output_dir)
+        ensure_dir_path_exists(self._save_dir)
 
     def on_train_begin(self, **kwargs):
-        self.trainer.model.dump(os.path.join(SAVE_PATH, self._output_dir, DUMP_FILENAME))
+        self.trainer.model.dump(os.path.join(self._save_dir, DUMP_FILENAME))
 
 
 class LoggerUpdater(Callback):
@@ -119,6 +122,9 @@ class SaveBestModel(Callback):
         super().__init__()
         self._output_dir = output_dir
         self._best_accuracy = 0
+        self._save_dir = os.path.join(SAVE_PATH, self._output_dir)
+        ensure_dir_path_exists(self._save_dir)
+        self.save_path = os.path.join(self._save_dir, BEST_MODEL_FILENAME)
 
     def on_epoch_end(self, **kwargs):
         epoch = kwargs.get("epoch")
@@ -127,8 +133,7 @@ class SaveBestModel(Callback):
 
         if last_val_accuracy > self._best_accuracy:
             self._best_accuracy = last_val_accuracy
-            self.trainer.model.save_variables(
-                os.path.join(SAVE_PATH, self._output_dir, BEST_MODEL_FILENAME))
+            self.trainer.model.save_variables(self.save_path)
             self._write_accuracy(epoch)
 
     def _write_accuracy(self, epoch):
@@ -136,7 +141,6 @@ class SaveBestModel(Callback):
         Writes and saves best achieved accuracy during training
         :param epoch: epoch number in which that accuracy occurred
         """
-        with open(os.path.join(SAVE_PATH, self._output_dir, BEST_VAL_ACCURACY_FILENAME),
-                  "w") as f:
+        with open(os.path.join(self._save_dir, BEST_VAL_ACCURACY_FILENAME), "w") as f:
             f.write("accuracy = %f\n" % self._best_accuracy)
             f.write("epoch = %d\n" % epoch)

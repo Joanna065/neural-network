@@ -4,7 +4,7 @@ from net.callbacks import LoggerUpdater
 from net.initializers import *
 from net.losses import categorical_cross_entropy
 from net.metrics import LabelAccuracy
-from net.model import SimpleNet, Sigmoid
+from net.model import MlpNet, Sigmoid
 from net.optimizers import *
 from settings import DATA_PATH, PROJECT_PATH
 from training import Trainer
@@ -39,7 +39,7 @@ if __name__ == "__main__":
         ]
     }
 
-    model = SimpleNet(**model_dict)
+    model = MlpNet(**model_dict)
 
     trainer = Trainer(model, **train_dict)
     trainer.train_loop()

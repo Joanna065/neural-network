@@ -74,18 +74,13 @@ class MaxPool2d(Layer):
         N, H, W, D = x.shape
         sN, sH, sW, sD = x.strides
         expanded_dx = np.lib.stride_tricks.as_strided(dx,
-                                                      shape=(N,
-                                                             out_h,
-                                                             out_w,
+                                                      shape=(N, out_h, out_w,
                                                              self._kernel_size,
-                                                             self._kernel_size,
-                                                             D),
+                                                             self._kernel_size, D),
                                                       strides=(sN,
                                                                sH * self._stride,
                                                                sW * self._stride,
-                                                               sH,
-                                                               sW,
-                                                               sD),
+                                                               sH, sW, sD),
                                                       writeable=True)
         np.add.at(expanded_dx, (), dy_masked)
         shape = expanded_dx.shape

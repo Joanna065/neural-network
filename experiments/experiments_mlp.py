@@ -6,7 +6,7 @@ from net.initializers import *
 from net.layers.activations import *
 from net.losses import categorical_cross_entropy, mean_squared_error
 from net.metrics import LabelAccuracy
-from net.model import SimpleNet
+from net.model import MlpNet
 from net.optimizers import *
 from settings import DATA_PATH
 from training import Trainer
@@ -109,7 +109,7 @@ def run_experiment(experiment_generator, out_dir, test_data, plot_loss_batch=Fal
     results = defaultdict(list)
 
     for i, (model_dict, train_dict, exp_name, value) in enumerate(experiment_generator()):
-        model = SimpleNet(**model_dict)
+        model = MlpNet(**model_dict)
         trainer = Trainer(model, **train_dict)
 
         label = f'{exp_name}={value}'
@@ -143,8 +143,6 @@ def run_experiment(experiment_generator, out_dir, test_data, plot_loss_batch=Fal
 
 if __name__ == "__main__":
     train_data, val_data, test_data = load_data(DATA_PATH)
-
-    out_dir = 'experiments'
 
     model_dict = {
         'optimizer': SGD(),

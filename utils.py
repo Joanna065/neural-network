@@ -6,6 +6,34 @@ import numpy as np
 
 from settings import SAVE_PATH
 
+RESULTS_FILENAME = 'results.pkl'
+STATUS_FILENAME = 'status.txt'
+
+
+def save_results(out_dir, results_dict, status=None):
+    results_path = os.path.join(SAVE_PATH, out_dir)
+    ensure_dir_path_exists(results_path)
+
+    with open(os.path.join(results_path, RESULTS_FILENAME), "wb") as f:
+        pickle.dump(results_dict, f)
+
+    if status is not None:
+        status_path = os.path.join(SAVE_PATH, out_dir)
+        ensure_dir_path_exists(status_path)
+
+        with open(os.path.join(status_path, STATUS_FILENAME), "w") as f:
+            f.write("last trained: {}\n".format(status))
+
+
+def open_results(out_dir):
+    # status_path = os.path.join(SAVE_PATH, out_dir, STATUS_FILENAME)
+    results_path = os.path.join(SAVE_PATH, out_dir, RESULTS_FILENAME)
+
+    with open(results_path, 'rb') as f:
+        results = pickle.load(f)
+
+    return results
+
 
 def load_data(filename):
     with open(filename, "rb") as f:
@@ -121,13 +149,13 @@ def plot_val_vs_train_acc(results, dirname):
                   filename=filename, dirname=dirname)
 
 
-def plot_time_bar(results, dirname):
+def plot_time_bar(results, dirname, time_unit='s'):
     times = results['time']
     labels = results['label']
 
     filename = 'time'
 
-    plot_bar(times, labels, x_label='', y_label='czas trwania uczenia [s]',
+    plot_bar(times, labels, x_label='', y_label='czas trwania uczenia [{}]'.format(time_unit),
              filename=filename, dirname=dirname)
 
 

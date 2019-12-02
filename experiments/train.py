@@ -99,12 +99,12 @@ def train_loop(model, input_file_weights, mini_batch_size, stop_epoch,
 def parse_args():
     import argparse
     parser = argparse.ArgumentParser(description="Start neural net training.")
-    parser.add_argument("-m", "--model", type=str, default="SimpleConv")
-    parser.add_argument("-in", "--initializer", type=str, default="Xavier")
-    parser.add_argument("-opt", "--optimizer", type=str, default="SGD")
+    parser.add_argument("-m", "--model", type=str, default="ConvNet")
+    parser.add_argument("-in", "--initializer", type=str, default="KaimingHe")
+    parser.add_argument("-opt", "--optimizer", type=str, default="SGDMomentum")
     parser.add_argument("-loss", "--loss-function", type=str, default="crossEntropy")
     parser.add_argument("-act", "--activation", type=str, default="relu")
-    parser.add_argument("-mbs", "--mini-batch-size", type=int, default=100)
+    parser.add_argument("-mbs", "--mini-batch-size", type=int, default=64)
     parser.add_argument("-se", "--stop-epoch", type=int, default=30)
     parser.add_argument("-iw", "--input-file-weights", type=str)
     parser.add_argument("output_dir")

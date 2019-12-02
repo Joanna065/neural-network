@@ -84,7 +84,7 @@ class Model(object):
         with open(filename, "rb") as f:
             vars = pickle.load(f)
         for idx, layer in enumerate(self._layers):
-            layer.load_variables(vars["layer{}".format(idx)])
+            layer.load_variables(vars["layer{} {}".format(idx, layer.__str__())])
 
     def save_variables(self, filename):
         os.makedirs(os.path.dirname(filename), exist_ok=True)
@@ -109,7 +109,7 @@ class Model(object):
 
     def dump(self, filename):
         with open(filename, "w") as f:
-            f.write("initializer: {}\n".format(self._initializer.name))
+            f.write("params count: %d \n" % (self.param_count()))
             f.write("optimizer: {}\n".format(self._optimizer.name))
             f.write("metric: {}\n".format([metric.name for metric in self._metrics]))
 

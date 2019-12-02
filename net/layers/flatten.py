@@ -5,12 +5,14 @@ from net.layers.layer import Layer
 
 class Flatten(Layer):
 
-    def __init__(self, ):
+    def __init__(self):
         super().__init__()
 
+    def output_shape(self):
+        return self._input_shape[0], np.prod(self._input_shape[1:])
+
     def forward(self, x):
-        n, h, w, d = x.shape
-        return x.reshape((-1, h * w * d))
+        return np.reshape(x, (-1, np.prod(self._input_shape[1:])))
 
     def backward(self, x, dy):
         return dict(dx=np.reshape(dy, (-1,) + x.shape[1:]))

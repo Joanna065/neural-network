@@ -5,7 +5,8 @@ from net.layers.pooling import MaxPool2d
 from net.model.model import Model
 
 
-class SimpleNet(Model):
+class MlpNet(Model):
+    name = 'MlpNet'
     """
     simple architecture for flatten neural network with only dense hidden layers
     """
@@ -23,17 +24,22 @@ class SimpleNet(Model):
         self.add(Dense(units=10))
 
 
-class SimpleConv(Model):
-    def __init__(self, optimizer=None, metrics=None, loss_fun=None):
+class ConvNet(Model):
+    name = 'ConvNet'
+
+    def __init__(self, optimizer=None, initializer=None, metrics=None, loss_fun=None,
+                 activation=ReLU, kernel_size=3, filters=8, stride=1, padding=0):
         Model.__init__(self, optimizer, metrics, loss_fun)
 
         self.add(Input(shape=(None, 28 * 28)))
         self.add(Reshape(output_shape=(None, 28, 28, 1)))
-        self.add(Conv2D(filters=8, kernel_size=3, stride=1))    # 26 x 26
-        self.add(ReLU())
-        self.add(MaxPool2d())   # 13 x 13
-        # self.add(Flatten())
-        self.add(Reshape(output_shape=(None, 8 * 13 * 13)))
-        self.add(Dense(units=500))
-        self.add(ReLU())
-        self.add(Dense(units=10))
+        # N x 26 x 26 x 8
+        self.add(
+            Conv2D(filters=filters, kernel_size=kernel_size, stride=stride, padding=padding,
+                   kernel_initializer=initializer))
+        self.add(activation())
+        self.add(MaxPool2d())  # N x 13 x 13 x 8
+        self.add(Flatten())
+        self.add(Dense(units=100, weights_initializer=initializer))
+        self.add(activation())
+        self.add(Dense(units=10, weights_initializer=initializer))
