@@ -3,7 +3,7 @@ from net.layers.layer import Layer
 import numpy as np
 
 
-class MaxPool2d(Layer):
+class MaxPool2D(Layer):
     """
     Max Pooling layer reduces dimensionality of the input data:
       y = xW + b

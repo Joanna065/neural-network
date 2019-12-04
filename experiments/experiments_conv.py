@@ -35,6 +35,46 @@ def kernel_size_same_pad_experiment(model_dict, train_dict):
     return exp_generator
 
 
+def calc_test_accuracy(model, test_data, train_dict):
+    acc_metric = LabelAccuracy()
+    x_test, y_test = test_data
+    model.load_variables(train_dict['callbacks'][-1].save_path)
+    accuracy = acc_metric(model.predict_classes(x_test), y_test)
+    print('Accuracy on test data: {}'.format(accuracy))
+
+
+def run_dropout_experiment(model_dict, train_dict, out_dir):
+    np.random.seed(12345)
+    results = defaultdict(list)
+    model_dict['dropout'] = True
+    kernel_size = model_dict['kernel_size']
+    padding = model_dict['padding']
+    label = f'kernel={kernel_size}x{kernel_size}, pad={padding}'
+
+    model = ConvNet(**model_dict)
+
+    train_dict['callbacks'][1] = ModelDump(output_dir=os.path.join(out_dir, label))
+    train_dict['callbacks'][2] = SaveBestModel(output_dir=os.path.join(out_dir, label))
+    trainer = Trainer(model, **train_dict)
+
+    start_time = time()
+    trainer.train_loop()
+    time_period = (time() - start_time) / 60
+
+    log_data = trainer.logger.logging_data
+
+    results['model_dict'].append(model_dict)
+    results['train_dict'].append(train_dict)
+    results['time'].append(time_period)
+    results['label'].append(label)
+    results['log_data'].append(log_data)
+
+    calc_test_accuracy(model, test_data, train_dict)
+
+    save_results(out_dir, results_dict=results)
+    return results
+
+
 def run_mlp_conv_compare_experiment(model_dict_conv, model_dict_mlp, train_dict, out_dir,
                                     test_data):
     np.random.seed(12345)
@@ -59,12 +99,7 @@ def run_mlp_conv_compare_experiment(model_dict_conv, model_dict_mlp, train_dict,
         results['label'].append(label)
         results['log_data'].append(log_data)
 
-        # calculate accuracy on test data
-        acc_metric = LabelAccuracy()
-        x_test, y_test = test_data
-        model.load_variables(train_dict['callbacks'][-1].save_path)
-        accuracy = acc_metric(model.predict_classes(x_test), y_test)
-        print('Accuracy on test data: {}'.format(accuracy))
+        calc_test_accuracy(model, test_data, train_dict)
 
     save_results(out_dir, results_dict=results)
     return results
@@ -95,11 +130,7 @@ def run_experiment(experiment_generator, out_dir, test_data):
         results['label'].append(label)
         results['log_data'].append(log_data)
 
-        # calculate accuracy on test data
-        acc_metric = LabelAccuracy()
-        x_test, y_test = test_data
-        accuracy = acc_metric(model.predict_classes(x_test), y_test)
-        print('Accuracy on test data: {}'.format(accuracy))
+        calc_test_accuracy(model, test_data, train_dict)
 
     save_results(out_dir, results_dict=results)
     return results
@@ -117,7 +148,8 @@ if __name__ == "__main__":
         'kernel_size': 3,
         'filters': 8,
         'stride': 1,
-        'padding': 0
+        'padding': 0,
+        'dropout': False
     }
 
     model_dict_mlp = {
@@ -156,7 +188,6 @@ if __name__ == "__main__":
     plot_val_accuracy(results, dirname=dir_name)
     plot_time_bar(results, dirname=dir_name, time_unit='min.')
 
-    # Experiment - CONVOLUTION VS MLP COMPARE
     model_dict_conv = {
         'optimizer': Adam(),
         'initializer': KaimingHe(),
@@ -166,9 +197,11 @@ if __name__ == "__main__":
         'kernel_size': 7,
         'filters': 8,
         'stride': 1,
-        'padding': 3  # 'same' padding
+        'padding': 3,  # 'same' padding
+        'dropout': False
     }
 
+    # Experiment - CONVOLUTION VS MLP COMPARE
     model_dict_mlp = {
         'optimizer': Adam(),
         'initializer': KaimingHe(),
@@ -181,6 +214,13 @@ if __name__ == "__main__":
     dir_name = 'conv7x7_vs_mlp_adam'
     results = run_mlp_conv_compare_experiment(model_dict_conv, model_dict_mlp, train_dict,
                                               dir_name, test_data)
+    plot_val_loss(results, dirname=dir_name)
+    plot_val_accuracy(results, dirname=dir_name)
+    plot_time_bar(results, dirname=dir_name, time_unit='min.')
+
+    # Experiment - DROPOUT
+    dir_name = 'conv7x7_dropout'
+    results = run_dropout_experiment(model_dict_conv, train_dict, out_dir=dir_name)
     plot_val_loss(results, dirname=dir_name)
     plot_val_accuracy(results, dirname=dir_name)
     plot_time_bar(results, dirname=dir_name, time_unit='min.')

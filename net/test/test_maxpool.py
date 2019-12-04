@@ -1,10 +1,10 @@
 import numpy as np
 
-from net.layers.pooling import MaxPool2d
+from net.layers.pooling import MaxPool2D
 
 
 def test_forward():
-    l = MaxPool2d()
+    l = MaxPool2D()
     l.build((1, 4, 4, 1))
     x = np.array([[[[1, 1, 5, 60],
                     [2, 4, 7, 8],
@@ -18,13 +18,13 @@ def test_forward():
 
 
 def test_output_shape():
-    l = MaxPool2d()
+    l = MaxPool2D()
     l.build((None, 4, 4, 4))
     assert l.output_shape() == (None, 2, 2, 4)
 
 
 def test_backward():
-    l = MaxPool2d()
+    l = MaxPool2D()
     l.build((1, 4, 4, 1))
     dy = np.zeros((1, 2, 2, 1))
     dy.fill(1)
