@@ -25,6 +25,7 @@ pip install -r requirements.txt
 ```
 Project uses mnist dataset consisting of number images. Download data from github: 
 `https://github.com/mnielsen/neural-networks-and-deep-learning.git`. 
+
 Create file named `user_settings.py` in project root directory and save there absolute path for dataset `DATA_PATH` and directory for results of experiments `SAVE_PATH`. Example:
 ```
 DATA_PATH = '/home/joanna/lab/neural_net/data/mnist.pkl'
@@ -38,6 +39,7 @@ export PYTHONPATH=`pwd`
 ## Usage
 Running training is possible in two scripts:
 * via terminal using ArgParser to set up training and model parameters - use script `experiments/train.py`
+
 Example:
 ```
 python experiments/train.py -m MlpNet -in Xavier -opt Adam --stop-epoch 10 'my_nets/simple_net'
@@ -45,6 +47,7 @@ python experiments/train.py -m MlpNet -in Xavier -opt Adam --stop-epoch 10 'my_n
 More options to declare in ArgParser are visible in methof `parse_args()`.
 
 * using script `experiments/run_training.py` where model and train parameters are explicitly declared in dicts in `__main__` function
+
 Example:
 ```
 out_dir = 'my_nets/simple_net'
