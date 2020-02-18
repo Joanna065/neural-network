@@ -15,9 +15,9 @@ Create new conda environment for this project:
 ```
 conda create -n <net-env> python=3.7
 ```
-Install requirements listed in 'requirements.txt' file via conda or pip:
+Install requirements listed in `requirements.txt` file via conda or pip:
 ```
-$ while read requirement; do conda install --yes $requirement; done < requirements.txt
+while read requirement; do conda install --yes $requirement; done < requirements.txt
 ```
 ```
 pip install -r requirements.txt
