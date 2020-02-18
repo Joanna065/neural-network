@@ -22,3 +22,10 @@ while read requirement; do conda install --yes $requirement; done < requirements
 ```
 pip install -r requirements.txt
 ```
+Project uses mnist dataset consisting of number images. Download data from github: 
+`https://github.com/mnielsen/neural-networks-and-deep-learning.git`. Create file named `user_settings.py` in project root directory and save there absolute path for dataset `DATA_PATH` and directory for results of experiments `SAVE_PATH` to be saved. Example:
+```
+DATA_PATH = '/home/joanna/lab/neural_net/data/mnist.pkl'
+SAVE_PATH = '/home/joanna/lab/neural_net/results/exp_mlp'
+```
+
