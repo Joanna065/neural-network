@@ -2,7 +2,7 @@
 Neural network implemented in numpy. 
 
 ## Overview
-Project written mainly for university classes. It includes implementation of dense and convolution layer, different optimizers,  weight initializers and callbacks during training proccess. For research purpose it allows to conduct some experiments to compare specific parameters of MLP and CONV nets. Project does not support GPU runtime.
+Project written mainly for university classes. It includes implementation of dense, convolution, pooling, flatten and dropout layer, different optimizers,  weight initializers and train callbacks. For research purpose it allows to conduct some experiments to compare specific parameters of MLP and CONV nets. Project does not support GPU runtime.
 
 ## Installation guide
 
@@ -14,6 +14,7 @@ git clone https://github.com/Joanna065/neural-network.git
 Create new conda environment for this project:
 ```
 conda create -n <net-env> python=3.7
+conda activate <net-env>
 ```
 Install requirements listed in `requirements.txt` file via conda or pip:
 ```
